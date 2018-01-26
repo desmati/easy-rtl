@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "EasyRTL": {
+      "commandName": "Project",
+      "commandLineArgs": "--from=\"C:\\Users\\desmati\\Downloads\\THEMES\\unilearn-102\\Main Files\\UniLearn\\UniLearn\" --to=\"C:\\Users\\desmati\\Downloads\\THEMES\\unilearn-102\\Main Files\\UniLearn\\UniLearn-rtl\""
+    }
+  }
+}

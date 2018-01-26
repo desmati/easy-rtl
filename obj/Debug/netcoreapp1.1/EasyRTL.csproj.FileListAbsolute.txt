@@ -1,0 +1,9 @@
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\bin\Debug\netcoreapp1.1\EasyRTL.deps.json
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\bin\Debug\netcoreapp1.1\EasyRTL.runtimeconfig.json
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\bin\Debug\netcoreapp1.1\EasyRTL.runtimeconfig.dev.json
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\bin\Debug\netcoreapp1.1\EasyRTL.dll
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\bin\Debug\netcoreapp1.1\EasyRTL.pdb
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\obj\Debug\netcoreapp1.1\EasyRTL.csprojResolveAssemblyReference.cache
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\obj\Debug\netcoreapp1.1\EasyRTL.AssemblyInfo.cs
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\obj\Debug\netcoreapp1.1\EasyRTL.dll
+C:\Users\desmati\Projects\EasyRTL\EasyRTL\obj\Debug\netcoreapp1.1\EasyRTL.pdb

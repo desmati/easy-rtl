@@ -1,0 +1,11 @@
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\bin\Debug\netcoreapp2.0\EasyRTL.deps.json
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\bin\Debug\netcoreapp2.0\EasyRTL.runtimeconfig.json
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\bin\Debug\netcoreapp2.0\EasyRTL.runtimeconfig.dev.json
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\bin\Debug\netcoreapp2.0\EasyRTL.dll
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\bin\Debug\netcoreapp2.0\EasyRTL.pdb
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\obj\Debug\netcoreapp2.0\EasyRTL.csprojResolveAssemblyReference.cache
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\obj\Debug\netcoreapp2.0\EasyRTL.csproj.CoreCompileInputs.cache
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\obj\Debug\netcoreapp2.0\EasyRTL.AssemblyInfoInputs.cache
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\obj\Debug\netcoreapp2.0\EasyRTL.AssemblyInfo.cs
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\obj\Debug\netcoreapp2.0\EasyRTL.dll
+C:\Projects\ProjectsFromAcer\EasyRTL\EasyRTL\obj\Debug\netcoreapp2.0\EasyRTL.pdb
