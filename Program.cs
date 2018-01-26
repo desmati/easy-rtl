@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EasyRTL
@@ -27,32 +28,32 @@ namespace EasyRTL
                 switch (fileType)
                 {
                     case ".css":
-                        if (file.EndsWith("main.css"))
+                        if (file.EndsWith(".css"))
                         {
-                            output = MakeCssRTL(System.IO.File.ReadAllLines(file));
+                            output = MakeCssRTL(CssBeautify(System.IO.File.ReadAllText(file)).Split("\n"));
                             cssCount++;
                             converted = true;
                         }
                         break;
-                    //case ".html":
-                    //    var fileContent = System.IO.File.ReadAllText(file);
-                    //    fileContent = fileContent.Replace("left", "left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467");
-                    //    fileContent = fileContent.Replace("right", "left");
-                    //    fileContent = fileContent.Replace("left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467", "right");
-                    //    fileContent = fileContent.Replace("<html>", "<html dir=\"rtl\">");
-                    //    output = fileContent;
-                    //    htmlCount++;
-                    //    converted = true;
-                    //    break;
-                    //case ".js":
-                    //    var jsContent = System.IO.File.ReadAllText(file);
-                    //    jsContent = jsContent.Replace("left", "left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467");
-                    //    jsContent = jsContent.Replace("right", "left");
-                    //    jsContent = jsContent.Replace("left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467", "right");
-                    //    output = jsContent;
-                    //    jsCount++;
-                    //    converted = true;
-                    //    break;
+                        //case ".html":
+                        //    var fileContent = System.IO.File.ReadAllText(file);
+                        //    fileContent = fileContent.Replace("left", "left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467");
+                        //    fileContent = fileContent.Replace("right", "left");
+                        //    fileContent = fileContent.Replace("left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467", "right");
+                        //    fileContent = fileContent.Replace("<html>", "<html dir=\"rtl\">");
+                        //    output = fileContent;
+                        //    htmlCount++;
+                        //    converted = true;
+                        //    break;
+                        //case ".js":
+                        //    var jsContent = System.IO.File.ReadAllText(file);
+                        //    jsContent = jsContent.Replace("left", "left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467");
+                        //    jsContent = jsContent.Replace("right", "left");
+                        //    jsContent = jsContent.Replace("left_kbjaf6532tubhf76248hf82gvcsbjCTGVdcyVCGfct65467", "right");
+                        //    output = jsContent;
+                        //    jsCount++;
+                        //    converted = true;
+                        //    break;
                 }
                 var outputPath = (To + file.ToLower().Replace(From.ToLower(), "")).Replace(@"\\", @"\");
                 Console.WriteLine("Output: " + outputPath);
@@ -110,7 +111,7 @@ namespace EasyRTL
             css = css.Replace("cipcin_jbdsghsasahd62hsdks", ".carousel-inner > .next");
             var i = 0;
             var o = new System.Text.StringBuilder();
-            foreach (string s in css.Split('\n'))
+            foreach (string s in css.Split("\n"))
             {
                 i++;
                 try
@@ -181,5 +182,472 @@ namespace EasyRTL
             //
             return outstr;
         }
+
+        public static string CssBeautify(string style)
+        {
+
+            var index = 0;
+            var blocks = new List<string>();
+            var formatted = "";
+            string ch;
+            string ch2;
+            var str = "";
+            var state = State.Start;
+            var depth = 0;
+            string quote = "";
+            var comment = false;
+            var options = new
+            {
+                indent = "    ",
+                openbrace = "end-of-line",
+                autosemicolon = true,
+
+            };
+            var openbracesuffix = options.openbrace == "end-of-line";
+            var autosemicolon = options.autosemicolon;
+
+            depth = 0;
+            state = State.Start;
+
+            // We want to deal with LF (\n) only
+            style = style.Replace("\r\n", "\n");
+            var length = style.Length;
+
+            while (index < length - 1)
+            {
+                ch = style.Substring(index, 1);
+                ch2 = style.Substring(index + 1, 1);
+                index += 1;
+                // Inside a string literal?
+                if (isQuote(quote))
+                {
+                    formatted += ch;
+                    if (ch == quote)
+                        quote = null;
+                    if (ch == "\\" && ch2 == quote)
+                    {
+                        // Don't treat escaped character as the closing quote
+                        formatted += ch2;
+                        index += 1;
+                    }
+                    continue;
+                }
+
+                // Starting a string literal?
+                if (isQuote(ch))
+                {
+                    formatted += ch;
+                    quote = ch;
+                    continue;
+                }
+
+                // Comment
+                if (comment)
+                {
+                    formatted += ch;
+                    if (ch == "*" && ch2 == "/")
+                    {
+                        comment = false;
+                        formatted += ch2;
+                        index += 1;
+                    }
+                    continue;
+                }
+                if (ch == "/" && ch2 == "*")
+                {
+                    comment = true;
+                    formatted += ch;
+                    formatted += ch2;
+                    index += 1;
+                    continue;
+                }
+
+                if (state == State.Start)
+                {
+
+                    if (blocks.Count() == 0)
+                    {
+                        if (isWhitespace(ch) && formatted.Length == 0)
+                        {
+                            continue;
+                        }
+                    }
+
+                    // Copy white spaces and control characters
+                    if (ch.ToCharArray()[0] <= ' ' || ch.ToCharArray()[0] >= 128)
+                    {
+                        state = State.Start;
+                        formatted += ch;
+                        continue;
+                    }
+
+                    // Selector or at-rule
+                    if (isName(ch) || (ch == "@"))
+                    {
+
+                        // Clear trailing whitespaces and linefeeds.
+                        str = formatted.TrimEnd();
+
+                        if (str.Length == 0)
+                        {
+                            // If we have empty string after removing all the trailing
+                            // spaces, that means we are right after a block.
+                            // Ensure a blank line as the separator.
+                            if (blocks.Count() > 0)
+                            {
+                                formatted = "\n\n";
+                            }
+                        }
+                        else
+                        {
+                            // After finishing a ruleset or directive statement,
+                            // there should be one blank line.
+                            if (str.ToCharArray()[str.Length - 1] == '}' ||
+                                    str.ToCharArray()[str.Length - 1] == ';')
+                            {
+
+                                formatted = str + "\n\n";
+                            }
+                            else
+                            {
+                                // After block comment, keep all the linefeeds but
+                                // start from the first column (remove whitespaces prefix).
+                                while (true)
+                                {
+                                    ch2 = formatted.Substring(formatted.Length - 1, 1);
+                                    if (ch2 != " " && ch2.ToCharArray()[0] != 9)
+                                        break;
+                                    formatted = formatted.Substring(0, formatted.Length - 1);
+                                }
+                            }
+                        }
+                        formatted += ch;
+                        state = (ch == "@") ? State.AtRule : State.Selector;
+                        continue;
+                    }
+                }
+
+                if (state == State.AtRule)
+                {
+
+                    // ';' terminates a statement.
+                    if (ch == ";")
+                    {
+                        formatted += ch;
+                        state = State.Start;
+                        continue;
+                    }
+
+                    // '{' starts a block
+                    if (ch == "{")
+                    {
+                        str = formatted.TrimEnd();
+                        openBlock(ref formatted, ch2, openbracesuffix, ref depth, options.indent);
+                        state = (str == "@font-face") ? State.Ruleset : State.Block;
+                        continue;
+                    }
+
+                    formatted += ch;
+                    continue;
+                }
+
+                if (state == State.Block)
+                {
+
+                    // Selector
+                    if (isName(ch))
+                    {
+
+                        // Clear trailing whitespaces and linefeeds.
+                        str = formatted.TrimEnd();
+
+                        if (str.Length == 0)
+                        {
+                            // If we have empty string after removing all the trailing
+                            // spaces, that means we are right after a block.
+                            // Ensure a blank line as the separator.
+                            if (blocks.Count() > 0)
+                            {
+                                formatted = "\n\n";
+                            }
+                        }
+                        else
+                        {
+                            // Insert blank line if necessary.
+                            if (str.Substring(str.Length - 1, 1) == "}")
+                            {
+                                formatted = str + "\n\n";
+                            }
+                            else
+                            {
+                                // After block comment, keep all the linefeeds but
+                                // start from the first column (remove whitespaces prefix).
+                                while (true)
+                                {
+                                    ch2 = formatted.Substring(formatted.Length - 1, 1);
+                                    if (ch2 != " " && ch2.ToCharArray()[0] != 9) break;
+                                    formatted = formatted.Substring(0, formatted.Length - 1);
+                                }
+                            }
+                        }
+
+                        appendIndent(ref formatted, depth, options.indent);
+                        formatted += ch;
+                        state = State.Selector;
+                        continue;
+                    }
+
+                    // "}" resets the state.
+                    if (ch == "}")
+                    {
+                        closeBlock(ref formatted, ref depth, autosemicolon, options.indent, ref blocks);
+                        state = State.Start;
+                        continue;
+                    }
+
+                    formatted += ch;
+                    continue;
+                }
+
+                if (state == State.Selector)
+                {
+
+                    // '{' starts the ruleset.
+                    if (ch == "{")
+                    {
+                        openBlock(ref formatted, ch2, openbracesuffix, ref depth, options.indent);
+                        state = State.Ruleset;
+                        continue;
+                    }
+
+                    // "}" resets the state.
+                    if (ch == "}")
+                    {
+                        closeBlock(ref formatted, ref depth, autosemicolon, options.indent, ref blocks);
+                        state = State.Start;
+                        continue;
+                    }
+
+                    formatted += ch;
+                    continue;
+                }
+
+                if (state == State.Ruleset)
+                {
+
+                    // "}" finishes the ruleset.
+                    if (ch == "}")
+                    {
+                        closeBlock(ref formatted, ref depth, autosemicolon, options.indent, ref blocks);
+                        state = State.Start;
+                        if (depth > 0)
+                        {
+                            state = State.Block;
+                        }
+                        continue;
+                    }
+
+                    // Make sure there is no blank line or trailing spaces inbetween
+                    if (ch == "\n")
+                    {
+                        formatted = formatted.TrimEnd();
+                        formatted += "\n";
+                        continue;
+                    }
+
+                    // property name
+                    if (!isWhitespace(ch))
+                    {
+                        formatted = formatted.TrimEnd();
+                        formatted += "\n";
+                        appendIndent(ref formatted, depth, options.indent);
+                        formatted += ch;
+                        state = State.Property;
+                        continue;
+                    }
+                    formatted += ch;
+                    continue;
+                }
+
+                if (state == State.Property)
+                {
+
+                    // ':' concludes the property.
+                    if (ch == ":")
+                    {
+                        formatted = formatted.TrimEnd();
+                        formatted += ": ";
+                        state = State.Expression;
+                        if (isWhitespace(ch2))
+                        {
+                            state = State.Separator;
+                        }
+                        continue;
+                    }
+
+                    // "}" finishes the ruleset.
+                    if (ch == "}")
+                    {
+                        closeBlock(ref formatted, ref depth, autosemicolon, options.indent, ref blocks);
+                        state = State.Start;
+                        if (depth > 0)
+                        {
+                            state = State.Block;
+                        }
+                        continue;
+                    }
+
+                    formatted += ch;
+                    continue;
+                }
+
+                if (state == State.Separator)
+                {
+
+                    // Non-whitespace starts the expression.
+                    if (!isWhitespace(ch))
+                    {
+                        formatted += ch;
+                        state = State.Expression;
+                        continue;
+                    }
+
+                    // Anticipate string literal.
+                    if (isQuote(ch2))
+                    {
+                        state = State.Expression;
+                    }
+
+                    continue;
+                }
+
+                if (state == State.Expression)
+                {
+
+                    // "}" finishes the ruleset.
+                    if (ch == "}")
+                    {
+                        closeBlock(ref formatted, ref depth, autosemicolon, options.indent, ref blocks);
+                        state = State.Start;
+                        if (depth > 0)
+                        {
+                            state = State.Block;
+                        }
+                        continue;
+                    }
+
+                    // ';' completes the declaration.
+                    if (ch == ";")
+                    {
+                        formatted = formatted.TrimEnd();
+                        formatted += ";\n";
+                        state = State.Ruleset;
+                        continue;
+                    }
+
+                    formatted += ch;
+
+                    if (ch == "(")
+                    {
+                        if (formatted.ToCharArray()[formatted.Length - 2] == 'l' &&
+                                formatted.ToCharArray()[formatted.Length - 3] == 'r' &&
+                                formatted.ToCharArray()[formatted.Length - 4] == 'u')
+                        {
+                            // URL starts with '(' and closes with ')'.
+                            state = State.URL;
+                            continue;
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (state == State.URL)
+                {
+
+
+                    // ')' finishes the URL (only if it is not escaped).
+                    if (ch == ")" && formatted.ToCharArray()[formatted.Length - 1] != '\\')
+                    {
+                        formatted += ch;
+                        state = State.Expression;
+                        continue;
+                    }
+                }
+
+                // The default action is to copy the character (to prevent
+                // infinite loop).
+                formatted += ch;
+            }
+
+            formatted = String.Join("", blocks) + formatted;
+
+            return formatted;
+        }
+        public enum State
+        {
+            Start = 0,
+            AtRule = 1,
+            Block = 2,
+            Selector = 3,
+            Ruleset = 4,
+            Property = 5,
+            Separator = 6,
+            Expression = 7,
+            URL = 8
+        };
+
+        public static bool isWhitespace(string c) =>
+            (c == " ") || (c == "\n") || (c == "\t") || (c == "\r") || (c == "\f");
+
+        public static bool isQuote(string c) => (c == "\'") || (c == "\"");
+
+        // FIXME: handle Unicode characters
+        public static bool isName(string str)
+        {
+            var ch = str.ToCharArray()[0];
+            return (ch >= 'a' && ch <= 'z') ||
+                (ch >= 'A' && ch <= 'Z') ||
+                (ch >= '0' && ch <= '9') ||
+                ("-_*.:#[]").Contains(str);
+        }
+
+        public static void appendIndent(ref string formatted, int depth, string indent)
+        {
+            for (var i = depth; i > 0; i -= 1) formatted += indent;
+        }
+
+        public static void openBlock(ref string formatted, string ch2, bool openbracesuffix, ref int depth, string indent)
+        {
+            formatted = formatted.TrimEnd();
+            if (openbracesuffix)
+                formatted += " {";
+            else
+            {
+                formatted += "\n";
+                appendIndent(ref formatted, depth, indent);
+                formatted += '{';
+            }
+            if (ch2 != "\n") formatted += "\n";
+            depth += 1;
+        }
+
+        public static void closeBlock(ref string formatted, ref int depth, bool autosemicolon, string indent, ref List<string> blocks)
+        {
+            char last;
+            depth -= 1;
+            formatted = formatted.TrimEnd();
+            if (formatted.Length > 0 && autosemicolon)
+            {
+                last = formatted.ToCharArray()[formatted.Length - 1];
+                if (last != ';' && last != '{') formatted += ';';
+            }
+            formatted += "\n";
+            appendIndent(ref formatted, depth, indent);
+            formatted += "}";
+            blocks.Add(formatted);
+            formatted = "";
+        }
+
     }
 }
